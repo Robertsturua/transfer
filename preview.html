@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Transfer Preview (Demo)</title>
+  <style>
+    body { margin: 0; background: #f6f7fb; font-family: system-ui, Arial, sans-serif; }
+    .wrap { max-width: 720px; margin: 40px auto; padding: 0 16px; }
+    .card {
+      background: white; border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,.08);
+      padding: 18px;
+    }
+    .banner {
+      background: #fff3cd; border: 1px solid #ffe69c;
+      color: #664d03; padding: 12px 14px;
+      border-radius: 12px; margin-bottom: 16px;
+      font-weight: 700;
+    }
+    h1 { font-size: 20px; margin-top: 0; }
+    .kv { display: grid; grid-template-columns: 140px 1fr; gap: 8px; }
+    .k { font-weight: 700; color: #334; }
+    .v { color: #111; }
+    .actions { display: flex; gap: 10px; margin-top: 16px; }
+    button {
+      border: 0; padding: 10px 14px;
+      border-radius: 12px; cursor: pointer;
+      font-weight: 800;
+    }
+    .primary { background: #1a73e8; color: white; }
+    .secondary { background: #e9eef9; color: #1a3d8f; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="banner">Transaction Declined due to Not completed Liquidity Check</div>
+
+    <div class="card">
+      <h1>Preview transfer</h1>
+
+      <div class="kv">
+        <div class="k">Bank</div><div class="v" id="bank"></div>
+        <div class="k">Recipient</div><div class="v" id="recipient"></div>
+        <div class="k">Amount</div><div class="v" id="amount"></div>
+        <div class="k">Reference</div><div class="v" id="reference"></div>
+        <div class="k">Note</div><div class="v" id="note"></div>
+        <div class="k">Demo ID</div><div class="v" id="demoId"></div>
+      </div>
+
+      <div class="actions">
+        <button class="secondary" onclick="history.back()">Back</button>
+        <button class="primary" onclick="alert('Demo only — no transfer made')">
+          Confirm (Demo)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+
+    function val(key) {
+      return params.get(key) || "—";
+    }
+
+    document.getElementById("bank").textContent = val("bank");
+    document.getElementById("recipient").textContent = val("recipient");
+
+    const amount = params.get("amount");
+    document.getElementById("amount").textContent = amount
+      ? Number(amount).toLocaleString(undefined, {
+          style: "currency",
+          currency: "GBP"
+        })
+      : "—";
+
+    document.getElementById("reference").textContent = val("reference");
+    document.getElementById("note").textContent = val("note");
+
+    const id = "DEMO-" + Math.random().toString(16).slice(2, 10).toUpperCase();
+    document.getElementById("demoId").textContent = id;
+  </script>
+</body>
+</html>

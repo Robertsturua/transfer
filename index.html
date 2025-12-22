@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Transfer Real Transfer</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    body { margin: 0; background: #f6f7fb; color: #111; }
+    .wrap { max-width: 760px; margin: 40px auto; padding: 0 16px; }
+    .banner {
+      background: #fff3cd; border: 1px solid #ffe69c; color: #664d03;
+      padding: 12px 14px; border-radius: 12px; margin-bottom: 16px;
+      font-weight: 700;
+    }
+    .card {
+      background: white; border-radius: 16px; box-shadow: 0 6px 20px rgba(0,0,0,.08);
+      padding: 18px;
+    }
+    h1 { font-size: 20px; margin: 0 0 12px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+    label { display: block; font-size: 12px; color: #444; margin: 10px 0 6px; }
+    input, select, button, textarea {
+      width: 100%; padding: 10px 12px; border-radius: 12px;
+      border: 1px solid #d7dbe6; outline: none; font-size: 14px;
+      box-sizing: border-box; background: white;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: #7aa7ff; box-shadow: 0 0 0 3px rgba(122,167,255,.25);
+    }
+    .hint { font-size: 12px; color: #666; margin-top: 6px; }
+    .actions { display: flex; gap: 10px; margin-top: 14px; }
+    button { cursor: pointer; border: 0; background: #1a73e8; color: white; font-weight: 800; }
+    button.secondary { background: #e9eef9; color: #1a3d8f; }
+    button:disabled { opacity: .6; cursor: not-allowed; }
+    .receipt {
+      margin-top: 16px; padding: 14px; border-radius: 14px;
+      background: #f1f5ff; border: 1px solid #d9e4ff;
+      display: none;
+    }
+    .receipt h2 { font-size: 16px; margin: 0 0 10px; }
+    .kv { display: grid; grid-template-columns: 140px 1fr; gap: 8px; font-size: 14px; }
+    .k { color: #334; font-weight: 700; }
+    .v { color: #111; }
+    .pill {
+      display: inline-block; padding: 2px 8px; border-radius: 999px;
+      font-size: 12px; background: #dff7e7; color: #0f5132; border: 1px solid #b7e3c6;
+    }
+    .error { color: #b00020; font-size: 12px; margin-top: 6px; display: none; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="banner">Transaction ID 501238123</div>
+
+    <div class="card">
+      <h1>Transfer (Demo UI)</h1>
+
+      <div class="grid">
+        <div>
+          <label for="bank">Choose destination (demo bank list)</label>
+          <select id="bank">
+            <option value="">Select a bank…</option>
+            <option>Example Bank A</option>
+            <option>Example Bank B</option>
+            <option>Example Bank C</option>
+          </select>
+          <div class="hint">Use generic names (don’t copy real bank branding).</div>
+        </div>
+
+        <div>
+          <label for="amount">Amount</label>
+          <input id="amount" type="number" min="0" step="0.01" placeholder="e.g. 25.00" />
+        </div>
+
+        <div>
+          <label for="recipient">Recipient name</label>
+          <input id="recipient" type="text" placeholder="e.g. Sam Taylor" />
+        </div>
+
+        <div>
+          <label for="reference">Reference (optional)</label>
+          <input id="reference" type="text" placeholder="e.g. Dinner" />
+        </div>
+
+        <div style="grid-column: 1 / -1;">
+          <label for="note">Note (optional)</label>
+          <textarea id="note" rows="3" placeholder="Add a note for the demo receipt…"></textarea>
+        </div>
+      </div>
+
+      <div id="error" class="error"></div>
+
+      <div class="actions">
+        <button id="previewBtn">Preview transfer</button>
+        <button id="resetBtn" class="secondary" type="button">Reset</button>
+      </div>
+
+      <div id="receipt" class="receipt">
+        <h2>Preview (Demo Only) <span class="pill">Not processed</span></h2>
+        <div class="kv">
+          <div class="k">Bank</div><div class="v" id="rBank"></div>
+          <div class="k">Recipient</div><div class="v" id="rRecipient"></div>
+          <div class="k">Amount</div><div class="v" id="rAmount"></div>
+          <div class="k">Reference</div><div class="v" id="rReference"></div>
+          <div class="k">Note</div><div class="v" id="rNote"></div>
+          <div class="k">Demo ID</div><div class="v" id="rId"></div>
+        </div>
+        <div class="hint" style="margin-top:10px;">
+          Next step can be: save this to a local JSON file, add validations, or make it multi-page.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const bankEl = document.getElementById("bank");
+    const amountEl = document.getElementById("amount");
+    const recipientEl = document.getElementById("recipient");
+    const referenceEl = document.getElementById("reference");
+    const noteEl = document.getElementById("note");
+
+    const errorEl = document.getElementById("error");
+    const receiptEl = document.getElementById("receipt");
+
+    const rBank = document.getElementById("rBank");
+    const rRecipient = document.getElementById("rRecipient");
+    const rAmount = document.getElementById("rAmount");
+    const rReference = document.getElementById("rReference");
+    const rNote = document.getElementById("rNote");
+    const rId = document.getElementById("rId");
+
+    function showError(msg) {
+      errorEl.textContent = msg;
+      errorEl.style.display = "block";
+    }
+
+    function clearError() {
+      errorEl.textContent = "";
+      errorEl.style.display = "none";
+    }
+
+    function makeDemoId() {
+      // Not a real transaction ID; just a random demo token
+      const part = () => Math.random().toString(16).slice(2, 6).toUpperCase();
+      return `DEMO-${part()}-${part()}-${part()}`;
+    }
+
+    function formatMoney(value) {
+      const n = Number(value);
+      if (!Number.isFinite(n)) return "";
+      return n.toLocaleString(undefined, { style: "currency", currency: "GBP" });
+    }
+
+    document.getElementById("previewBtn").addEventListener("click", () => {
+  clearError();
+
+  const bank = bankEl.value.trim();
+  const amount = amountEl.value;
+  const recipient = recipientEl.value.trim();
+  const reference = referenceEl.value.trim();
+  const note = noteEl.value.trim();
+
+  if (!bank) return showError("Please select a bank.");
+  if (!recipient) return showError("Please enter a recipient name.");
+  if (!amount || Number(amount) <= 0)
+    return showError("Please enter an amount greater than 0.");
+
+  const params = new URLSearchParams({
+    bank,
+    recipient,
+    amount,
+    reference,
+    note
+  });
+
+  // Redirect to the new page
+  window.location.href = `preview.html?${params.toString()}`;
+});
+
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      bankEl.value = "";
+      amountEl.value = "";
+      recipientEl.value = "";
+      referenceEl.value = "";
+      noteEl.value = "";
+      clearError();
+      receiptEl.style.display = "none";
+    });
+  </script>
+</body>
+</html>
