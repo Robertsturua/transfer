@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Transfer</title>
 
-  <>
+  <style>
     body { margin:0; background:#f4f6fb; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:#111; }
     .wrap { max-width:820px; margin:24px auto; padding:0 14px; }
 
@@ -94,7 +94,7 @@
       border-radius:999px;
       pointer-events:none;
     }
-  </>
+  </style>
 </head>
 
 <body>
@@ -109,7 +109,7 @@
             Under review. We will contact you if additional information is required.
           </div>
         </div>
-        <button id="dismissBannerBtn" class="secondary" ="width:auto;">Dismiss</button>
+        <button id="dismissBannerBtn" class="secondary" style="width:auto;">Dismiss</button>
       </div>
     </div>
 
@@ -127,7 +127,7 @@
       <div class="card summary" id="summaryCard">
         <div class="metric">
           <div class="label">Balance</div>
-          <div class="value">€5,400.00</div>
+          <div class="value">€15,400.00</div>
         </div>
         <div class="metric">
           <div class="label">Status</div>
@@ -166,7 +166,7 @@
             <input id="reference" type="text" />
           </div>
 
-          <div ="grid-column:1 / -1;">
+          <div style="grid-column:1 / -1;">
             <label>Note</label>
             <textarea id="note"></textarea>
           </div>
@@ -181,7 +181,7 @@
       </div>
     </div>
 
-    <div class="footerNote">Demo interface — no payment is processed.</div>
+    <div class="footerNote"></div>
   </div>
 
   <script>
@@ -216,8 +216,8 @@
     const resetBtn = document.getElementById("resetBtn");
     const errorEl = document.getElementById("error");
 
-    function showError(msg){ errorEl.textContent = msg; errorEl..display = "block"; }
-    function clearError(){ errorEl.textContent = ""; errorEl..display = "none"; }
+    function showError(msg){ errorEl.textContent = msg; errorEl.style.display = "block"; }
+    function clearError(){ errorEl.textContent = ""; errorEl.style.display = "none"; }
 
     function setFormLocked(locked) {
       bankEl.disabled = locked;
@@ -231,7 +231,7 @@
       // Visual lock look
       document.getElementById("summaryCard").classList.toggle("lockedDim", locked);
       document.getElementById("formCard").classList.toggle("lockedDim", locked);
-      document.getElementById("lockOverlay")..display = locked ? "block" : "none";
+      document.getElementById("lockOverlay").style.display = locked ? "block" : "none";
     }
 
     // Banner logic + timestamp
@@ -264,7 +264,7 @@
           bannerTextEl.textContent =
             `${txPart}${timePart}. No further changes can be made while the case is under review.`;
 
-          bannerEl..display = "block";
+          bannerEl.style.display = "block";
           setFormLocked(true);
         }
       } catch (_) {}
@@ -272,7 +272,7 @@
 
     dismissBtn.addEventListener("click", () => {
       sessionStorage.removeItem("caseStatus");
-      bannerEl..display = "none";
+      bannerEl.style.display = "none";
       setFormLocked(false);
     });
 
@@ -285,7 +285,7 @@
 
       const draft = {
         txId,
-        balanceEur: 5400,
+        balanceEur: 15400,
         status: "HOLD",
         transfer: {
           bank: bankEl.value,
@@ -312,4 +312,3 @@
   </script>
 </body>
 </html>
-
