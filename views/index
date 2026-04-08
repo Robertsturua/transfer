@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Corporate Banking Portal</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+
+<div class="card">
+  <h1>Secure Transfer Gateway</h1>
+  <div class="sub">Encrypted Transfer Configuration</div>
+
+  <div id="screenLogin">
+    <div class="field" style="margin-top: 24px;">
+      <label>Authorized Username</label>
+      <input id="loginUser" placeholder="Enter identification" autocomplete="username">
+    </div>
+
+    <div class="field">
+      <label>Secure Password</label>
+      <input id="loginPass" type="password" placeholder="Enter password" autocomplete="current-password">
+      <div class="err" id="errLogin">Authentication failed. Please verify credentials.</div>
+    </div>
+
+    <button class="btn btn-primary" onclick="doLogin()" style="margin-top: 12px;">Log In</button>
+  </div>
+
+  <div id="screenBank" class="hidden">
+    <div class="sub">Select destination institution</div>
+    <div class="bank-select" id="bankList"></div>
+    <button class="btn btn-ghost" onclick="goTo('screenLogin')">Cancel Session</button>
+  </div>
+
+  <div id="screenForm" class="hidden">
+    <div id="selectedBank" class="pill"></div>
+
+    <div id="globalFields" class="hidden">
+      <div class="field">
+        <label>Destination Country</label>
+        <select id="country">
+          <option value="">Select country…</option>
+          <option>France</option><option>Germany</option><option>Italy</option>
+          <option>Spain</option><option>Netherlands</option><option>Switzerland</option>
+        </select>
+        <div class="err" id="errCountry">Destination required.</div>
+      </div>
+      <div class="field">
+        <label>Beneficiary Name</label>
+        <input id="nameGlobal" placeholder="Official account name" autocomplete="name">
+        <div class="err" id="errNameGlobal">Valid name required.</div>
+      </div>
+      <div class="field">
+        <label>IBAN</label>
+        <input id="iban" placeholder="International Bank Account Number" autocomplete="off">
+        <div class="err" id="errIban">Invalid format.</div>
+        <div class="iban-status" id="ibanStatus">Validating IBAN format…</div>
+        <div class="iban-bar" id="ibanBar"><div></div></div>
+      </div>
+      <div class="field">
+        <label>BIC / SWIFT</label>
+        <input id="bic" placeholder="8 or 11 characters" autocomplete="off">
+        <div class="err" id="errBic">Invalid routing code.</div>
+      </div>
+    </div>
+
+    <div id="ukFields" class="hidden">
+      <div class="field">
+        <label>Beneficiary Name</label>
+        <input id="nameUk" placeholder="Full name on account" autocomplete="name">
+        <div class="err" id="errNameUk">Valid name required.</div>
+      </div>
+      <div class="field">
+        <label>Sort Code</label>
+        <input id="sortCode" placeholder="00-00-00" autocomplete="off" maxlength="8">
+        <div class="err" id="errSortCode">Must be 6 digits.</div>
+      </div>
+      <div class="field">
+        <label>Account Number</label>
+        <input id="accountNumber" placeholder="8 digit account number" autocomplete="off" maxlength="8">
+        <div class="err" id="errAccountNumber">Must be exactly 8 digits.</div>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top: 32px;">
+      <label>Authorized Disbursement</label>
+      <input id="amount" disabled style="font-weight: 800; font-size: 20px; color: var(--primary); text-align: center; border-color: var(--primary); background: #fff;">
+    </div>
+
+    <button class="btn btn-primary" onclick="submitAndStart()">Verify Transaction</button>
+    <button class="btn btn-ghost" onclick="goTo('screenBank')">Back</button>
+  </div>
+
+  <div id="screenLoading" class="hidden" style="padding: 40px 0;">
+    <div class="spinner"></div>
+    <div class="loader" id="statusText">Establishing secure link...</div>
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="progress-label" id="progressLabel">0%</div>
+  </div>
+
+  <div id="screenDecline" class="hidden">
+    <div class="official-receipt">
+      <div class="receipt-header decline">
+        <div class="receipt-status-icon">⚠️</div>
+        <div class="receipt-title decline">Transaction Declined</div>
+        <div class="receipt-amount" id="massiveDeclineAmount">0.00</div>
+      </div>
+      
+      <div class="receipt-body">
+        <div class="data-row">
+          <span class="data-label">Network Routing</span>
+          <span class="data-value" id="declineNetworkName">Bank</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">Status Code</span>
+          <span class="data-value error-text" id="declineStatusCode">ERR_LIQUIDITY_HOLD</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">Detailed Reason</span>
+          <span class="data-value" id="declineReasonText" style="font-weight: 500;"></span>
+        </div>
+
+        <div class="action-invoice">
+          <div class="action-header">Pending Obligation</div>
+          <div class="action-split">
+            <span class="label">Required Deposit (<span id="depositPctDecline">0</span>%)</span>
+            <span class="value" id="metaDepositDecline">0.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="startAttempt()">Retry Authorization</button>
+    <button class="btn btn-ghost" onclick="goTo('screenForm')">Return to Dashboard</button>
+
+    <div class="regulatory-print">
+      <strong>REGULATORY NOTICE:</strong> Processing halted in compliance with <span id="regulationRefDecline" style="font-weight: 700;">Regulation X</span> under the <em id="regulationTitleDecline">Framework</em>. Outstanding financial obligations must be cleared via the designated network prior to automated settlement release.
+    </div>
+  </div>
+
+  <div id="screenSuccess" class="hidden">
+    <div class="official-receipt">
+      <div class="receipt-header success">
+        <div class="receipt-status-icon">✅</div>
+        <div class="receipt-title success">Transaction Authorized</div>
+        <div class="receipt-amount" id="massiveSuccessAmount">0.00</div>
+      </div>
+      
+      <div class="receipt-body">
+        <div class="data-row">
+          <span class="data-label">Network Routing</span>
+          <span class="data-value" id="successNetworkName">Bank</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">Assurance Status</span>
+          <span class="data-value" style="color: var(--success);">Verification Cleared</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">Settlement Window</span>
+          <span class="data-value">0-3 Business Days Dispatch</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="openAdvice()">Download Statement</button>
+    <button class="btn btn-ghost" onclick="goTo('screenForm')">Return to Dashboard</button>
+
+    <div class="regulatory-print">
+      <strong>COMPLIANCE NOTICE:</strong> Protocol executed in accordance with <span id="regulationRefSuccess" style="font-weight: 700;">Regulation X</span> under the <em id="regulationTitleSuccess">Framework</em>. Funds have been irrevocably committed to the routing network.
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="adviceModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div class="modal-title">Official Transfer Advice</div>
+      <button class="btn btn-ghost" style="margin:0; padding:8px 12px; font-size:12px;" onclick="closeAdvice()">Close</button>
+    </div>
+    <div class="modal-body">
+      <div style="background: var(--danger-bg); border: 1px solid var(--danger-border); color: var(--danger-muted); padding: 10px; border-radius: 8px; margin-bottom: 20px; font-weight: 800; text-align: center; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">
+        ⚠️ Simulator Receipt - Not Valid ⚠️
+      </div>
+      
+      <div style="margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
+          <span style="color: var(--text-muted); font-size: 13px;">Reference ID</span>
+          <span style="font-weight: 700; font-family: monospace;" id="adviceRef">TC-NEXUS-000000</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
+          <span style="color: var(--text-muted); font-size: 13px;">Network Rails</span>
+          <span style="font-weight: 600; font-size: 13px;" id="adviceNetworkName">Bank</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
+          <span style="color: var(--text-muted); font-size: 13px;">Status</span>
+          <span style="font-weight: 700; color: var(--success); font-size: 13px;">Queued for Dispatch</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+          <span style="color: var(--text-muted); font-size: 13px;">Cleared Amount</span>
+          <span style="font-weight: 800; font-size: 14px;" id="adviceAmount">0.00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>
