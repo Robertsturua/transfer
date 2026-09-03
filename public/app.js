@@ -30,7 +30,7 @@ const UK_BANKS = [
 
 const GLOBAL_BANKS = [
   "Banco Santander", "BBVA", "CaixaBank", "Banco Sabadell", "Bankinter", // Spain
-  "UBS Group", "Credit Suisse", "Julius Baer", "Raiffeisen Switzerland", // Swiss
+  "UBS Group", "Credit Suisse", "Venra Bank", "Raiffeisen Switzerland", // Swiss
   "ING Group", "Revolut", "ABN AMRO", "de Volksbank", "Triodos Bank",   // Netherlands
   "Deutsche Bank", "BNP Paribas", "Société Générale", "Intesa Sanpaolo"  // Others
 ];
